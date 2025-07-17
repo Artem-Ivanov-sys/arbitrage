@@ -32,7 +32,7 @@ SECRET_KEY = getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "ce40eec049d7.ngrok-free.app"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # CORS_ALLOWED_ORIGINS = [
 #     "http://127.0.0.1:5500",
@@ -48,7 +48,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 # Application definition
 
 INSTALLED_APPS = [
-    "corsheaders",
+    # "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -106,7 +106,7 @@ MONGODB_SETTINGS = {
     'db': 'admin',
     'username': getenv('MONGO_INITDB_ROOT_USERNAME'),
     'password': getenv('MONGO_INITDB_ROOT_PASSWORD'),
-    'host': 'localhost',
+    'host': 'mongo:27017',
 }
 
 connect(**MONGODB_SETTINGS)

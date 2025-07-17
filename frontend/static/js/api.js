@@ -1,5 +1,5 @@
 export async function getData() {
-    const url = "127.0.0.1:5500"
+    const url = "localhost"
     const port = ""
     let return_data = {}
     await fetch(`http://${url}/api/v1/get`, {

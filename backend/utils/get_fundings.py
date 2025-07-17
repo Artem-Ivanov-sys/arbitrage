@@ -23,13 +23,13 @@ from fundings_api import models
 
 # ──────────────────────────── DJANGO SETTINGS ───────────────────────────────
 
-load_dotenv()
-DB_SETTINGS = {
-    'db': 'admin',
-    'username': getenv('MONGO_INITDB_ROOT_USERNAME'),
-    'password': getenv('MONGO_INITDB_ROOT_PASSWORD'),
-    'host': 'localhost'
-}
+# load_dotenv()
+# DB_SETTINGS = {
+#     'db': 'admin',
+#     'username': getenv('MONGO_INITDB_ROOT_USERNAME'),
+#     'password': getenv('MONGO_INITDB_ROOT_PASSWORD'),
+#     'host': 'localhost'
+# }
 
 # ───────────────────────────────── LOGURU ────────────────────────────────────
 logger.remove()
@@ -159,7 +159,8 @@ async def collect_all(session):
         try:
             out.append(await t)
         except Exception as e:
-            logger.error(e)
+            # logger.error(e)
+            pass
         # out.append(await t)
     tasks_group2 = [asyncio.create_task(fn(session, CONFIG['symbols'])) for fn in FETCHERS[1].values()]
     for t in asyncio.as_completed(tasks_group2):
@@ -191,10 +192,10 @@ def serialization(dict_data):
 # ─────────────────────────────── MAIN LOOP ───────────────────────────────────
 async def main():
     connector = aiohttp.TCPConnector(ssl=False)
-    try:
-        connect(**DB_SETTINGS)
-    except Exception as error:
-        rprint("Failed to connect to database: ", error)
+    # try:
+    #     connect(**DB_SETTINGS)
+    # except Exception as error:
+    #     rprint("Failed to connect to database: ", error)
     async with aiohttp.ClientSession(connector=connector) as session:
         while True:
             t0 = time.time()
