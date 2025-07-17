@@ -227,8 +227,9 @@ async def main():
             #         )
             #         await send_telegram(text)
             db_data = models.MainFundingModel.objects.all().order_by('-time')
-            if timedelta(hours=1) > (db_data[0].time-db_data[1].time):
-                db_data[0].delete()
+            if len(db_data) > 1:
+                if timedelta(hours=1) > (db_data[0].time-db_data[1].time):
+                    db_data[0].delete()
             serialized_data = serialization(dict_data)
             serialized_data.save()
             logger.info(f"Цикл {round(time.time()-t0,2)}s → sleep {CONFIG['poll_sec']}s")
