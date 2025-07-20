@@ -44,7 +44,7 @@ function createRow(data) {
   <tr>
       <td class="coin-name" rowspan="2">${data['coin']}</td>
       <td class="pair-cell">
-          🟢
+          🔴
           <a href="${links[data['max']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['max']['exchange']}.png" width="20px" height="20px"> ${data['max']['exchange']}</a>
           <p style="margin-left: 15px;">${data['max']['index_price'].toFixed(4)}</p>
       </td>
@@ -58,7 +58,7 @@ function createRow(data) {
   <tr class="second_tr">
       <!-- порожня перша клітинка, бо rowspan у попередньому -->
       <td class="pair-cell">
-          🔴
+          🟢
           <a href="${links[data['min']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['min']['exchange']}.png" width="20px" height="20px"> ${data['min']['exchange']}</a>
           <p style="margin-left: 15px;">${data['min']['index_price'].toFixed(4)}</p>
       </td>

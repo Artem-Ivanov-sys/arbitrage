@@ -19,6 +19,14 @@ def getFundingsView(request):
 
         ]
     }
+
+    const_time = {
+        'backpack': 8,
+        'kiloex': 1,
+        'aevo': 1,
+        'paradex': 8
+    }
+
     for coin in data['fundings']:
         if len(data['fundings'][coin]) > 1:
             keys = data['fundings'][coin].keys()
@@ -46,8 +54,8 @@ def getFundingsView(request):
                         'index_price': min_[2],
                         'reset_time': min_[3]
                     },
-                    'delta': max_[1] - min_[1],
-                    'APR': (max_[1] - min_[1])*24*365,
+                    'delta': (max_[1] - min_[1])*100,
+                    'APR': ((max_[1] / const_time[max_[0]]) - (min_[1] / const_time[min_[0]])) * 8760 * 100,
                     'spread': abs(max_[2]-min_[2])/max(max_[2], min_[2])*100 if max(max_[2], min_[2]) else -1
                 }
             )
