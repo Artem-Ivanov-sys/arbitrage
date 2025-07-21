@@ -55,7 +55,6 @@ def getFundingsView(request):
                         'reset_time': min_[3]
                     },
                     'delta': (max_[1] - min_[1])*100,
-                    'APR': ((max_[1] / const_time[max_[0]]) - (min_[1] / const_time[min_[0]])) * 8760,
 
                     'APR': ((max_[1] * (24 / const_time[max_[0]]) ) - (min_[1] / (24 / const_time[min_[0]]) )) * 8760,
                     
