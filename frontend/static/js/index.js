@@ -117,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Reset: знімаємо всі галочки
   reset.addEventListener('click', () => {
     panel.querySelectorAll('input[type=\"checkbox\"]').forEach(chk => chk.checked = false);
-    exchanges.forEach(e => {
-      exchanges[e] = true
-    })
+    for (let key of Object.keys(exchanges)) {
+      exchanges[key] = true
+    }
     show_data()
   });
 
@@ -129,6 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
     Array.from(document.getElementsByClassName("exchangeCheckbox")).forEach(e => {
       if (!e.checked) {
         exchanges[e.value] = false
+      } else {
+        exchanges[e.value] = true
       }
     })
     show_data()
