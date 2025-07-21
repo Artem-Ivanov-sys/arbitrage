@@ -56,6 +56,9 @@ def getFundingsView(request):
                     },
                     'delta': (max_[1] - min_[1])*100,
                     'APR': ((max_[1] / const_time[max_[0]]) - (min_[1] / const_time[min_[0]])) * 8760,
+
+                    'APR': ((max_[1] * (24 / const_time[max_[0]]) ) - (min_[1] / (24 / const_time[min_[0]]) )) * 8760,
+                    
                     'spread': abs(max_[2]-min_[2])/max(max_[2], min_[2])*100 if max(max_[2], min_[2]) else -1
                 }
             )
