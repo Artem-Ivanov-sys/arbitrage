@@ -1,6 +1,5 @@
 export async function getData() {
     const url = "localhost"
-    const port = ""
     let return_data = {}
     await fetch(`http://${url}/api/v1/get`, {
         method: "GET",

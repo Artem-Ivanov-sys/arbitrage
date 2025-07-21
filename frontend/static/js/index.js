@@ -15,30 +15,30 @@ const exchanges = {
 
 function sorted_data() {
   if (sort_ === "funding") {
-    data['coins'].sort((a, b) => {return b.delta-a.delta})
     data.coins.forEach(coin => {
-      if (coin.max.rate < coin.min.rate) {
-        let tmp = coin.max
-        coin.max = coin.min
-        coin.min = tmp
+      if (coin.long.rate < coin.short.rate) {
+        let tmp = coin.long
+        coin.long = coin.short
+        coin.short = tmp
       }
     })
+    data['coins'].sort((a, b) => {return b.long.rate-b.short.rate-a.long.rate+a.short.rate})
   } else if (sort_ === "spread") {
-    data['coins'].sort((a, b) => {return b.spread-a.spread})
     data.coins.forEach(coin => {
-      if (coin.max.index_price < coin.min.index_price) {
-        let tmp = coin.max
-        coin.max = coin.min
-        coin.min = tmp
+      if (coin.long.index_price > coin.short.index_price) {
+        let tmp = coin.long
+        coin.long = coin.short
+        coin.short = tmp
       }
     })
+    data.coins.sort((a, b) => {return (b['short']['index_price'] && b['long']['index_price'] ? ((b['short']['index_price']-b['long']['index_price'])*2/(b['long']['index_price']+b['short']['index_price'])*100).toFixed(4) : -1) - (a['short']['index_price'] && a['long']['index_price'] ? ((a['short']['index_price']-a['long']['index_price'])*2/(a['long']['index_price']+a['short']['index_price'])*100).toFixed(4) : -1)})
   }
   return data
 }
 
 function show_data() {
   document.querySelector("#main_table tbody").innerHTML = sorted_data().coins.map(coin => {
-    if (exchanges[coin.max.exchange]||exchanges[coin.min.exchange]) return createRow(coin)
+    if (exchanges[coin.long.exchange]||exchanges[coin.short.exchange]) return createRow(coin)
   }).join("")
 }
 
@@ -71,25 +71,25 @@ function createRow(data) {
       <td class="coin-name" rowspan="2">${data['coin']}</td>
       <td class="pair-cell">
           🟢
-          <a href="${links[data['min']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['min']['exchange']}.png" width="20px" height="20px"> ${data['min']['exchange']}</a>
-          <p style="margin-left: 15px;">${data['min']['index_price'].toFixed(4)}</p>
+          <a href="${links[data['long']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['long']['exchange']}.png" width="20px" height="20px"> ${data['long']['exchange']}</a>
+          <p style="margin-left: 15px;">${data['long']['index_price'].toFixed(4)}</p>
       </td>
       <td>
-          <p>${data['min']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${time[data['min']['exchange']]}h</small> </p>
+          <p>${data['long']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${time[data['long']['exchange']]}h</small> </p>
       </td>
-      <td class="coin-name" rowspan="2">${data['APR'].toFixed(4)}%</td>
-      <td class="coin-name" rowspan="2"><span class="badge green">${data['delta'].toFixed(4)}%</span></td>
-      <td class="coin-name" rowspan="2"><span class="badge green">${data['spread'].toFixed(4)}%</span></td>
+      <td class="coin-name" rowspan="2">${Math.abs((data['long']['rate'] * (24 / time[data['long']['exchange']]) ) - (data['short']['rate'] * (24 / time[data['short']['exchange']]) ) * 8760).toFixed(4)}%</td>
+      <td class="coin-name" rowspan="2"><span class="badge green">${((data['long']['rate'] - data['short']['rate'])*100).toFixed(4)}%</span></td>
+      <td class="coin-name" rowspan="2"><span class="badge green">${data['short']['index_price'] && data['long']['index_price'] ? ((data['short']['index_price']-data['long']['index_price'])*2/(data['long']['index_price']+data['short']['index_price'])*100).toFixed(4) : -1}%</span></td>
   </tr>
   <tr class="second_tr">
       <!-- порожня перша клітинка, бо rowspan у попередньому -->
       <td class="pair-cell">
           🔴
-          <a href="${links[data['max']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['max']['exchange']}.png" width="20px" height="20px"> ${data['max']['exchange']}</a>
-          <p style="margin-left: 15px;">${data['max']['index_price'].toFixed(4)}</p>
+          <a href="${links[data['short']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['short']['exchange']}.png" width="20px" height="20px"> ${data['short']['exchange']}</a>
+          <p style="margin-left: 15px;">${data['short']['index_price'].toFixed(4)}</p>
       </td>
       <td style="border-right: 1px solid var(--border);">
-          <p>${data['max']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${time[data['max']['exchange']]}h</small> </p>
+          <p>${data['short']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${time[data['short']['exchange']]}h</small> </p>
       </td>
   </tr>
   `
