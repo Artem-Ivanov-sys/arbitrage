@@ -77,7 +77,7 @@ function createRow(data) {
       <td>
           <p>${data['long']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${time[data['long']['exchange']]}h</small> </p>
       </td>
-      <td class="coin-name" rowspan="2">${(((data['long']['rate'] * (24 / time[data['long']['exchange']]) ) - (data['short']['rate'] * (24 / time[data['short']['exchange']]) )) * 8760).toFixed(4)}%</td>
+      <td class="coin-name" rowspan="2">${(((data['long']['rate'] * (24 / time[data['long']['exchange']]) ) - (data['short']['rate'] * (24 / time[data['short']['exchange']]) )) * 365).toFixed(4)}%</td>
       <td class="coin-name" rowspan="2"><span class="badge green">${((data['long']['rate'] - data['short']['rate'])*100).toFixed(4)}%</span></td>
       <td class="coin-name" rowspan="2"><span class="badge green">${data['short']['index_price'] && data['long']['index_price'] ? ((data['short']['index_price']-data['long']['index_price'])*2/(data['long']['index_price']+data['short']['index_price'])*100).toFixed(4) : -1}%</span></td>
   </tr>
