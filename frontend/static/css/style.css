@@ -45,10 +45,15 @@
             white-space: nowrap;
         }
 
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
         nav a {
             color: var(--text-muted);
             text-decoration: none;
-            margin-right: 24px;
             font-size: 14px;
             transition: 0.2s;
         }
@@ -58,6 +63,7 @@
             color: #fff;
         }
 
+
         .user {
             margin-left: auto;
             display: flex;
@@ -65,6 +71,12 @@
             gap: 44px;
             position: absolute;
             left: 80%;
+        }
+        @media (max-width: 768px) {
+            .user{
+                gap: 15px;
+            }
+          /* тут стили для мобильных */
         }
 
         /* ---------- MAIN LAYOUT ---------- */
