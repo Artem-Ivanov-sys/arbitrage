@@ -6,11 +6,11 @@ let last_time_reload = 0
 let next_time_reload = 0
 let data = {}
 let sort_ = "funding"
-const exchanges = {
-    backpack: true,
-    kiloex: true,
-    aevo: true,
-    paradex: true
+const excluded = {
+    backpack: false,
+    kiloex: false,
+    aevo: false,
+    paradex: false
   }
 
 function sorted_data() {
@@ -38,7 +38,7 @@ function sorted_data() {
 
 function show_data() {
   document.querySelector("#main_table tbody").innerHTML = sorted_data().coins.map(coin => {
-    if (exchanges[coin.long.exchange]||exchanges[coin.short.exchange]) return createRow(coin)
+    if (!excluded[coin.long.exchange]&&!excluded[coin.short.exchange]) return createRow(coin)
   }).join("")
 }
 
@@ -101,6 +101,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const reset = document.getElementById('exchangeReset');
   const apply = document.getElementById('exchangeApply');
   const sort_by = document.getElementById("sort-select");
+  const form = document.getElementsByTagName("form")[0];
+
+  form.addEventListener("submit", e => {
+    e.preventDefault()
+    const csrftoken = decodeURIComponent(document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1])
+    fetch('http://localhost/api/v1/user/create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrftoken
+      },
+      body: new URLSearchParams({user_name: e.target[0].value})
+    }).then(response => {
+      if (response.ok)
+        return response.json()
+      throw new Error("Fetch failed")
+    }).then(data => {
+      console.log(data)
+    })
+  })
 
   // відкриваємо / закриваємо панель
   btn.addEventListener('click', e => {
@@ -116,9 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Reset: знімаємо всі галочки
   reset.addEventListener('click', () => {
-    panel.querySelectorAll('input[type=\"checkbox\"]').forEach(chk => chk.checked = false);
-    for (let key of Object.keys(exchanges)) {
-      exchanges[key] = true
+    panel.querySelectorAll('input[type=\"checkbox\"]').forEach(chk => chk.checked = true);
+    for (let key of Object.keys(excluded)) {
+      excluded[key] = false
     }
     show_data()
   });
@@ -128,9 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
     panel.classList.remove('show');
     Array.from(document.getElementsByClassName("exchangeCheckbox")).forEach(e => {
       if (!e.checked) {
-        exchanges[e.value] = false
+        excluded[e.value] = true
       } else {
-        exchanges[e.value] = true
+        excluded[e.value] = false
       }
     })
     show_data()
