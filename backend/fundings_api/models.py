@@ -10,4 +10,13 @@ class MainFundingModel(Document):
         )
     )
 
+# class User(models.Model):
+#     pass
+
+class PaymentModel(models.Model):
+    user = models.ForeignKey('auth.User', related_name="user", on_delete=models.CASCADE)
+
+    class Meta:
+        pass
+
 # Create your models here.

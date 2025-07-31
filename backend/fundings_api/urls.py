@@ -1,6 +1,9 @@
 from django.urls import path
-from .views import getFundingsView
+from .views import getFundingsView, createUserView, authorizeView, getCSRFTokenView
 
 urlpatterns = [
-    path('get/', getFundingsView)
+    path('get/', getFundingsView),
+    path('user/create', createUserView),
+    path('user/get', authorizeView),
+    path('get/csrf_token', getCSRFTokenView)
 ]

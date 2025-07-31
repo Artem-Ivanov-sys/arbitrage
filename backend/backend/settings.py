@@ -34,21 +34,28 @@ DEBUG = True
 
 ALLOWED_HOSTS = [getenv('SERVER_URL')]
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://127.0.0.1:5500",
-#     "http://127.0.0.1:1234"
-# ]
-
-CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "ngrok-skip-browser-warning"
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost",
+    # "http://185.103.101.172/"
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_COOKIE_NAME = "csrftoken"
+CSRT_COOKIE_HTTPONLY = False
+CSRT_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = False
+
+# CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ALLOW_HEADERS = list(default_headers) + [
+#     "ngrok-skip-browser-warning"
+# ]
 
 # Application definition
 
 INSTALLED_APPS = [
-    # "corsheaders",
+    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,11 +63,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'fundings_api'
+    'fundings_api',
+    'django.contrib.postgres'
 ]
 
 MIDDLEWARE = [
-    # 'utils.middleware.CheckOriginMiddleware',
+    'utils.middleware.CheckOriginMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -96,11 +104,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': getenv("POSTGRES_DB"),
+        'USER': getenv("POSTGRES_USER"),
+        'PASSWORD': getenv("POSTGRES_PASSWORD"),
+        'HOST': 'postgres',
+        'PORT': '5432'
     }
 }
-
 
 MONGODB_SETTINGS = {
     'db': 'admin',
