@@ -1,0 +1,40 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    background: #0f1117;
+    color: #e4e9f0;
+    line-height: 1.4;
+    /* min-height: 100vh; */
+}
+
+form {
+    width: 200px;
+    margin: 100px auto;
+}
+
+h2 {
+    text-align: center;
+}
+
+form p {
+    padding: 5px 5px;
+}
+
+form input[type=text], form input[type=password] {
+    padding: 5px 10px;
+    font-size: 1em;
+    width: 100%;
+}
+
+form input[type=submit] {
+    display: block;
+    padding: 5px 10px;
+    font-size: 1.2em;
+    width: 100%;
+    margin-top: 20px;
+}

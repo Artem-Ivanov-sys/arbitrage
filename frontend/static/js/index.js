@@ -101,27 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const reset = document.getElementById('exchangeReset');
   const apply = document.getElementById('exchangeApply');
   const sort_by = document.getElementById("sort-select");
-  const form = document.getElementsByTagName("form")[0];
-
-  form.addEventListener("submit", e => {
-    e.preventDefault()
-    const csrftoken = decodeURIComponent(document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1])
-    fetch('http://localhost/api/v1/user/create', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRFToken': csrftoken
-      },
-      body: new URLSearchParams({user_name: e.target[0].value})
-    }).then(response => {
-      if (response.ok)
-        return response.json()
-      throw new Error("Fetch failed")
-    }).then(data => {
-      console.log(data)
-    })
-  })
 
   // відкриваємо / закриваємо панель
   btn.addEventListener('click', e => {

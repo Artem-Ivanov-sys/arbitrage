@@ -23,5 +23,6 @@ export async function getData() {
         .catch(err => {
             console.error(err)
         })
+    console.log(return_data)
     return return_data
 }

@@ -4,6 +4,6 @@ from .views import getFundingsView, createUserView, authorizeView, getCSRFTokenV
 urlpatterns = [
     path('get/', getFundingsView),
     path('user/create', createUserView),
-    path('user/get', authorizeView),
+    path('user/login', authorizeView),
     path('get/csrf_token', getCSRFTokenView)
 ]

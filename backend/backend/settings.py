@@ -141,6 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# AUTH_USER_MODEL = 'fundings_api.UserModel'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

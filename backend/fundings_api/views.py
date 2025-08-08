@@ -2,15 +2,23 @@
 from .models import MainFundingModel
 from django.http import JsonResponse, HttpResponse
 from json import loads
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from random import choice
 from string import ascii_letters, digits
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.core.serializers import serialize
-from django.forms.models import model_to_dict
+# from django.core.serializers import serialize
+# from django.forms.models import model_to_dict
+from django.contrib.auth.decorators import login_required
+from .models import UserModel
+from django.contrib.auth import authenticate, login, get_user_model
+from datetime import datetime, timedelta
+from django.utils import timezone
+from .forms import LoginForm
+from django.shortcuts import redirect
 
 # Create your views here.
 
+@ensure_csrf_cookie
 def getCSRFTokenView(request):
     if request.method == "GET":
         return JsonResponse({})
@@ -26,19 +34,44 @@ def createUserView(request):
         if request.POST.get('user_name'):
             username=generate_username(10)
             password=generate_password(20)
-            user = User.objects.create_user(username=username, password=password)
-            user.save()
-            return JsonResponse({"username": user.username, "password": password})
+            user = get_user_model().objects.create_user(
+                username=username,
+                password=password
+            )
+            user_ = UserModel.objects.create(
+                user=user,
+                user_tg_id=0,
+                user_subscription_level='regular',
+                user_subscription_expire=timezone.now() + timedelta(days=30)
+            )
+            return JsonResponse({"username": username, "password": password})
         return JsonResponse({"error": "user_name is empty"})
     return JsonResponse({"error": "POST required"})
 
 def authorizeView(request):
-    if request.method == "GET":
-        users = User.objects.values("id", "username", "password")
-        return JsonResponse(list(users), safe=False)
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(request, username=cd['username'], password=cd['password'])
+            if user is not None:
+                if user.is_active:
+                    if timezone.now() < user.user_data.user_subscription_expire:
+                        login(request, user)
+                        return JsonResponse({'redirect_url': '/'})
+                    else:
+                        return JsonResponse({"error": "Subscription expired"})
+                else:
+                    return JsonResponse({"error": "User is inactive"})
+            else:
+                return JsonResponse({"error": "Login failed"})
+        else:
+            return JsonResponse({"error": "Invalid form"})
     else:
-        return JsonResponse({"error": "GET required"})
+        return JsonResponse({"error": "POST required"})
 
+@login_required
 @ensure_csrf_cookie
 def getFundingsView(request):
     print(request.META['REMOTE_ADDR'])
