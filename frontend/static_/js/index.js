@@ -71,7 +71,7 @@ function createRow(data) {
       <td class="coin-name" rowspan="2">${data['coin']}</td>
       <td class="pair-cell">
           🟢
-          <a href="${links[data['long']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['long']['exchange']}.png" width="20px" height="20px"> ${data['long']['exchange']}</a>
+          <a href="${links[data['long']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static_/icon/${data['long']['exchange']}.png" width="20px" height="20px"> ${data['long']['exchange']}</a>
           <p style="margin-left: 15px;">${data['long']['index_price'].toFixed(4)}</p>
       </td>
       <td>
@@ -85,7 +85,7 @@ function createRow(data) {
       <!-- порожня перша клітинка, бо rowspan у попередньому -->
       <td class="pair-cell">
           🔴
-          <a href="${links[data['short']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static/icon/${data['short']['exchange']}.png" width="20px" height="20px"> ${data['short']['exchange']}</a>
+          <a href="${links[data['short']['exchange']].replace(/#/, data['coin'])}" class="exchange_link"><img src="static_/icon/${data['short']['exchange']}.png" width="20px" height="20px"> ${data['short']['exchange']}</a>
           <p style="margin-left: 15px;">${data['short']['index_price'].toFixed(4)}</p>
       </td>
       <td style="border-right: 1px solid var(--border);">

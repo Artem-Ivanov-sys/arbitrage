@@ -24,7 +24,7 @@ def on_user_logged_in(sender, request, user, **kwargs):
     )
 
     sessions = SessionModel.objects.filter(user=user).order_by('-created_at')
-    if len(sessions) > 2:
+    if len(sessions) > 2 and user.user_data.user_subscription_level != "admin":
         for old in sessions[2:]:
             try:
                 Session.objects.get(session_key=old.session_key).delete()
