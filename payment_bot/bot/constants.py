@@ -19,12 +19,12 @@ INVOICES_URL = "http://backend:8000/api/v1/invoice/set"
 
 # ------------------------------- НАСТРОЙКИ ----------------------------------
 # Токен бота из @BotFather. В проде лучше хранить в переменных окружения.
-BOT_TOKEN = os.getenv("BOT_TOKEN", "7907136267:AAGYCrJxfRYFi25NXzK1pO-Ek3U0lkyURIo")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 API_SECRET_KEY = os.getenv("API_SECRET_KEY")
 
 # Токен Crypto Pay API из @CryptoBot (Crypto Pay → Create App → Token).
-CRYPTO_PAY_API_TOKEN = os.getenv("CRYPTO_PAY_API_TOKEN", "443765:AADEXWc305fsW8n9w2NZJs4Cbb9sAqmsebl")
+CRYPTO_PAY_API_TOKEN = os.getenv("CRYPTO_PAY_API_TOKEN")
 
 # Базовый URL Crypto Pay API (официальный).
 CRYPTO_PAY_BASE = "https://pay.crypt.bot/api"
