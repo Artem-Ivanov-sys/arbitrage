@@ -107,7 +107,7 @@ def authorizeView(request):
             user = authenticate(request, username=cd['username'], password=cd['password'])
             if user is not None:
                 if user.is_active:
-                    if timezone.now() < user.user_data.user_subscription_expire or user.user_subscription_level == "admin":
+                    if timezone.now() < user.user_data.user_subscription_expire or user.user_data.user_subscription_level == "admin":
                         login(request, user)
                         return JsonResponse({'redirect_url': '/'})
                     else:
