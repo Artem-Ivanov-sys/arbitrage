@@ -18,6 +18,15 @@ services:
       - backend
     networks:
       - dev
+  bot:
+    build:
+      context: ./payment_bot
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    networks:
+      - dev
   backend:
     build:
       context: ./backend

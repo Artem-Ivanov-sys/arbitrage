@@ -1,20 +1,20 @@
 # from django.shortcuts import render
 from .models import MainFundingModel
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from json import loads
-# from django.contrib.auth.models import User
 from random import choice
 from string import ascii_letters, digits
 from django.views.decorators.csrf import ensure_csrf_cookie
 # from django.core.serializers import serialize
 # from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
-from .models import UserModel
+from .models import UserModel, TgUserModel, PaymentModel
 from django.contrib.auth import authenticate, login, get_user_model
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 from .forms import LoginForm
-from django.shortcuts import redirect
+from os import getenv
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -24,9 +24,59 @@ def getCSRFTokenView(request):
         return JsonResponse({})
     return JsonResponse({"error": "GET required"})
 
+def InvoiceView(request):
+    if request.headers.get("X-API-KEY") != getenv("API_SECRET_KEY"):
+        return HttpResponseForbidden("Invalid key")
+    if request.method == "POST":
+        data = dict(keys=['uid', 'user_tg_id', 'pay_amount', 'pay_status', 'tariff'], values=[request.POST.get(i, None) for i in ['uid', 'user_tg_id', 'pay_amount', 'pay_status', 'tariff']])
+        data['status'] = ["Active", "Paid", "Expired"].index(data.get("status"))+1
+
+        if invoice:=PaymentModel.objects.all().filter(uid=data.get("uid")).first():
+            invoice.status = data.get("status")
+        else:
+            PaymentModel.objects.create(**data)
+        return JsonResponse({"status": True})
+
+    return JsonResponse({"status": False, "error": "POST required"})
+
+def TgUserView(request):
+    if request.headers.get("X-API-KEY") != getenv("API_SECRET_KEY"):
+        return HttpResponseForbidden("Invalid key")
+    if request.method == "GET":
+        tg_user_id = request.GET.get("tg_user_id")
+        if not tg_user_id:
+            return JsonResponse({"error": "tg_user_id is required"}, status=400)
+
+        query = TgUserModel.objects.all().filter(tg_user_id=tg_user_id).first()
+        if query:
+            return JsonResponse({"username": query.username})
+        else:
+            return JsonResponse({"error": "user doesn't exist"})
+    elif request.method == "POST":
+        tg_user_id = request.POST.get("tg_user_id")
+        username = request.POST.get("username")
+        if not tg_user_id or not username:
+            return JsonResponse({"error": "tg_user_id and username are required"}, status=400)
+
+        query = TgUserModel.objects.all().filter(tg_user_id=tg_user_id).first()
+        if query:
+            query.username = username
+            query.save()
+        else:
+            query = TgUserModel.objects.create(tg_user_id=tg_user_id, username=username)
+        return JsonResponse({"username": query.username})
+    else:
+        return JsonResponse({"error": "unexpected request method"}, status=405)
+
 def createUserView(request):
+    if request.headers.get("X-API-KEY") != getenv("API_SECRET_KEY"):
+        return HttpResponseForbidden("Invalid key")
     def generate_username(length):
-        return f"{request.POST.get('user_name')}_{''.join([choice(ascii_letters+digits) for i in range(length)])}"
+        if request.POST.get('user_name') is None:
+            return f"{request.POST.get('user_name')}_{''.join([choice(ascii_letters+digits) for i in range(length)])}"
+        while True:
+            if not User.objects.all().filter(username=(username:=''.join([choice(ascii_letters+digits) for i in range(length)]))).first():
+                return username
     def generate_password(length):
         return f"{''.join([choice(ascii_letters+digits+"_") for i in range(length)])}"
     
@@ -57,7 +107,7 @@ def authorizeView(request):
             user = authenticate(request, username=cd['username'], password=cd['password'])
             if user is not None:
                 if user.is_active:
-                    if timezone.now() < user.user_data.user_subscription_expire:
+                    if timezone.now() < user.user_data.user_subscription_expire or user.user_subscription_level == "admin":
                         login(request, user)
                         return JsonResponse({'redirect_url': '/'})
                     else:

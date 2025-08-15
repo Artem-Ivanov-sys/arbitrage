@@ -18,6 +18,10 @@ class UserModel(models.Model):
     user_subscription_level = models.CharField(max_length=63)
     user_subscription_expire = models.DateTimeField(auto_now=False, auto_now_add=False)
 
+class TgUserModel(models.Model):
+    username = models.CharField()
+    tg_user_id = models.CharField(unique=True)
+
 class SessionModel(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     session_key = models.CharField(max_length=40, unique=True)
@@ -26,7 +30,14 @@ class SessionModel(models.Model):
     ip_address = models.GenericIPAddressField(blank=True, null=True)
 
 class PaymentModel(models.Model):
-    user = models.ForeignKey(get_user_model(), related_name="user", on_delete=models.CASCADE)
+    # user = models.ForeignKey(get_user_model(), related_name="user", on_delete=models.CASCADE)
+    uid = models.CharField(unique=False)
+    user_tg_id = models.IntegerField(unique=False)
+    pay_amount = models.IntegerField()
+    pay_status = models.CharField(choices=[('1', "Active"), ('2', "Paid"), ('3', "Expired")])
+    tariff = models.CharField(choices=[('1', "1m"), ('2', "3m"), ('3', "6m")])
+    pay_created_at = models.DateTimeField(auto_now_add=True)
+    pay_updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         pass

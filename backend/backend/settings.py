@@ -32,7 +32,7 @@ SECRET_KEY = getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [getenv('SERVER_URL')]
+ALLOWED_HOSTS = [getenv('SERVER_URL'), "backend"]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost",
