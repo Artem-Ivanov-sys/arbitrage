@@ -84,6 +84,8 @@ def createUserView(request):
         if request.POST.get('user_name'):
             username=generate_username(10)
             password=generate_password(20)
+            months=int(request.POST.get("months", 0))
+
             user = get_user_model().objects.create_user(
                 username=username,
                 password=password
@@ -92,7 +94,7 @@ def createUserView(request):
                 user=user,
                 user_tg_id=0,
                 user_subscription_level='regular',
-                user_subscription_expire=timezone.now() + timedelta(days=30)
+                user_subscription_expire=timezone.now() + timedelta(days=30 * months)
             )
             return JsonResponse({"username": username, "password": password})
         return JsonResponse({"error": "user_name is empty"})

@@ -11,12 +11,12 @@ def mdv2_escape(text: str) -> str:
         result += ("\\" + ch) if ch in escape_chars else ch
     return result
 
-async def get_user_info(user_name):
+async def get_user_info(user_name, months):
     async with aiohttp.ClientSession() as session:
         async with session.get(CSRF_PATH) as resp:
             csrftoken = resp.cookies.get('csrftoken').value
 
-        async with session.post(USER_CREATION_PATH, data={"user_name": user_name}, headers={
+        async with session.post(USER_CREATION_PATH, data={"user_name": user_name, "months": months}, headers={
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-API-KEY': API_SECRET_KEY,
             'X-CSRFToken': csrftoken}, cookies={"csrftoken": csrftoken}) as resp:

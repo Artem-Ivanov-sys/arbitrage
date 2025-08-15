@@ -151,7 +151,8 @@ def cb_check_payment(call: types.CallbackQuery):
         bot.send_message(chat_id, "Оплата прошла успешно ✅")
 
 
-        bot.send_message(chat_id, asyncio.run(get_user_info(None)), parse_mode="MarkdownV2")
+        months = int(last_invoice[chat_id].get('title').split()[0])
+        bot.send_message(chat_id, asyncio.run(get_user_info(None, months=months)), parse_mode="MarkdownV2")
 
 
         bot.send_message(chat_id, "Сайт: http://185.233.119.84")
