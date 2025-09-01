@@ -142,7 +142,7 @@ def cb_check_payment(call: types.CallbackQuery):
 
     status = str(inv.get("status", "")).lower()
 
-    if status != "paid":
+    if status == "paid":
 
         #TODO когда юзер оплатил, ответ бота идёт в виде такого текста
 
