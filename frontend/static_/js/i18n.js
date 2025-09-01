@@ -1,7 +1,7 @@
 export const translations = {
     en: {
         "available_investments": "🪙 Available Investments",
-        "user": "User⌄",
+        "user": "Logout",
         "arbitrage": "Arbitrage",
         "exchanges": "Exchanges ⌄",
         "coin": "Coin",
@@ -13,7 +13,7 @@ export const translations = {
     },
     ru: {
         "available_investments": "🪙 Доступные инвестиции",
-        "user": "Пользователь⌄",
+        "user": "Выйти",
         "arbitrage": "Арбитраж",
         "exchanges": "Биржи ⌄",
         "coin": "Монеты",

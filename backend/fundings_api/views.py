@@ -1,4 +1,4 @@
-# from django.shortcuts import render
+from django.shortcuts import redirect
 from .models import MainFundingModel
 from django.http import JsonResponse, HttpResponseForbidden
 from json import loads
@@ -9,7 +9,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 # from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from .models import UserModel, TgUserModel, PaymentModel
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from datetime import timedelta
 from django.utils import timezone
 from .forms import LoginForm
@@ -72,8 +72,6 @@ def createUserView(request):
     if request.headers.get("X-API-KEY") != getenv("API_SECRET_KEY"):
         return HttpResponseForbidden("Invalid key")
     def generate_username(length):
-        if request.POST.get('user_name') is None:
-            return f"{request.POST.get('user_name')}_{''.join([choice(ascii_letters+digits) for i in range(length)])}"
         while True:
             if not User.objects.all().filter(username=(username:=''.join([choice(ascii_letters+digits) for i in range(length)]))).first():
                 return username
@@ -85,14 +83,19 @@ def createUserView(request):
             username=generate_username(10)
             password=generate_password(20)
             months=int(request.POST.get("months", 0))
+            first_name = str(request.POST.get("first_name", "User"))
+            last_name = str(request.POST.get("last_name", ""))
+            user_tg_id = int(request.POST.get("user_id", 0))
 
             user = get_user_model().objects.create_user(
                 username=username,
-                password=password
+                password=password,
+                first_name=first_name,
+                last_name=last_name
             )
             user_ = UserModel.objects.create(
                 user=user,
-                user_tg_id=0,
+                user_tg_id=user_tg_id,
                 user_subscription_level='regular',
                 user_subscription_expire=timezone.now() + timedelta(days=30 * months)
             )
@@ -129,7 +132,7 @@ def getFundingsView(request):
     print(request.META['REMOTE_ADDR'])
     if request.method == "OPTIONS":
         response = JsonResponse({})
-        response["Access-Control-Allow-Origin"] = "localhost, http://185.103.101.172"
+        response["Access-Control-Allow-Origin"] = "localhost, http://185.233.119.84"
         response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, ngrok-skip-browser-warning"
         return response
@@ -187,3 +190,12 @@ def getFundingsView(request):
                 )
     return_data['coins'].sort(key=lambda x: x['long']['rate']-x['short']['rate'], reverse=True)
     return JsonResponse(return_data, safe=False)
+
+@login_required
+def getUserView(request):
+    return JsonResponse({"first_name": request.user.first_name})
+
+@login_required
+def logoutView(request):
+    logout(request)
+    return redirect("/")

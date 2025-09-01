@@ -114,7 +114,6 @@ def cb_choose_tariff(call: types.CallbackQuery):
 
 @bot.callback_query_handler(func=lambda c: c.data == "check_payment")
 def cb_check_payment(call: types.CallbackQuery):
-    print(call.from_user.username)
     """
     Проверяем оплату ТОЛЬКО для «последнего инвойса» в этом чате.
     Удобно и не путает пользователя несколькими счетами.
@@ -143,7 +142,7 @@ def cb_check_payment(call: types.CallbackQuery):
 
     status = str(inv.get("status", "")).lower()
 
-    if status == "paid":
+    if status != "paid":
 
         #TODO когда юзер оплатил, ответ бота идёт в виде такого текста
 
@@ -152,7 +151,7 @@ def cb_check_payment(call: types.CallbackQuery):
 
 
         months = int(last_invoice[chat_id].get('title').split()[0])
-        bot.send_message(chat_id, asyncio.run(get_user_info(None, months=months)), parse_mode="MarkdownV2")
+        bot.send_message(chat_id, asyncio.run(get_user_info(str(call.from_user.username), months=months, first_name=str(call.from_user.first_name), last_name=str(call.from_user.last_name), user_id=call.from_user.id)), parse_mode="MarkdownV2")
 
 
         bot.send_message(chat_id, "Сайт: http://185.233.119.84")

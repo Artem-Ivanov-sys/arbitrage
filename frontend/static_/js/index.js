@@ -53,6 +53,39 @@ async function loadData() {
   }
 }
 
+async function whoami() {
+  try {
+    let return_data = {}
+    const url = "localhost"
+    await fetch(`http://${url}/api/v1/user/whoami`, {
+        credentials: "include",
+        method: "GET",
+        mode: "cors",
+        headers: {
+            "ngrok-skip-browser-warning": "true",
+            "Content-Type": "application/json"
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                console.log(response)
+                throw new Error(response)
+            }
+            return response.json()
+        })
+        .then(data => {
+            return_data = data
+        })
+        .catch(err => {
+            console.error(err)
+        })
+    console.log(return_data)
+    return return_data
+  } catch(e) {
+    console.error(e)
+  }
+}
+
 function createRow(data) {
   const links = {
     backpack: "https://backpack.exchange/trade/#_USD_PERP",
@@ -101,6 +134,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const reset = document.getElementById('exchangeReset');
   const apply = document.getElementById('exchangeApply');
   const sort_by = document.getElementById("sort-select");
+  const user_info = document.getElementById("user-info");
+
+  whoami().then(data => {
+    if (data.first_name) {
+      user_info.innerHTML = `
+  <span id="first-name">${data.first_name}</span>, <a href="/api/v1/user/logout" style="color:white" data-i18n="user">logout</a>
+      `
+    } else {
+      user_info.innerHTML = `
+  <span id="first-name"><a href="/pages/login/login.html" style="color:white">login</a>
+      `
+    }
+  })
 
   // відкриваємо / закриваємо панель
   btn.addEventListener('click', e => {
