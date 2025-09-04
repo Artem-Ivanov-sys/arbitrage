@@ -149,7 +149,8 @@ def getFundingsView(request):
         'backpack': 8,
         'kiloex': 1,
         'aevo': 1,
-        'paradex': 8
+        'paradex': 8,
+        'hyperliquid': 8
     }
 
     for coin in data['fundings']:
@@ -166,9 +167,9 @@ def getFundingsView(request):
                 if data['fundings'][coin][i]['index_price'] == 0:
                     continue
                 if data['fundings'][coin][i]['rate'] > max_[1]:
-                    max_ = [i, data['fundings'][coin][i]['rate'], data['fundings'][coin][i]['index_price'], data['fundings'][coin][i]['reset_time']]
+                    max_ = [i, data['fundings'][coin][i]['rate'], data['fundings'][coin][i]['index_price'], data['fundings'][coin][i]['reset_time'], data['fundings'][coin][i]['interval']]
                 if data['fundings'][coin][i]['rate'] < min_[1]:
-                    min_ = [i, data['fundings'][coin][i]['rate'], data['fundings'][coin][i]['index_price'], data['fundings'][coin][i]['reset_time']]
+                    min_ = [i, data['fundings'][coin][i]['rate'], data['fundings'][coin][i]['index_price'], data['fundings'][coin][i]['reset_time'], data['fundings'][coin][i]['interval']]
             
             if min_[0] != max_[0]:
                 return_data['coins'].append(
@@ -178,13 +179,15 @@ def getFundingsView(request):
                             'exchange': max_[0],
                             'rate': max_[1],
                             'index_price': max_[2],
-                            'reset_time': max_[3]
+                            'reset_time': max_[3],
+                            'interval': max_[4]
                         },
                         'short': {
                             'exchange': min_[0],
                             'rate': min_[1],
                             'index_price': min_[2],
-                            'reset_time': min_[3]
+                            'reset_time': min_[3],
+                            'interval': min_[4]
                         },
                     }
                 )

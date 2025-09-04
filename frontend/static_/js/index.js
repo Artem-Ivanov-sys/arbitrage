@@ -10,7 +10,8 @@ const excluded = {
     backpack: false,
     kiloex: false,
     aevo: false,
-    paradex: false
+    paradex: false,
+    hyperliquid: false
   }
 
 function sorted_data() {
@@ -91,13 +92,8 @@ function createRow(data) {
     backpack: "https://backpack.exchange/trade/#_USD_PERP",
     kiloex: "https://app.kiloex.io/trade?token=#USD",
     aevo: "https://app.aevo.xyz/perpetual/#",
-    paradex: "https://app.paradex.trade/trade/#-USD-PERP"
-  }
-  const time = {
-    backpack: 8,
-    kiloex: 1,
-    aevo: 1,
-    paradex: 8
+    paradex: "https://app.paradex.trade/trade/#-USD-PERP",
+    hyperliquid: "https://app.hyperliquid.xyz/trade/#"
   }
   return `
   <tr>
@@ -108,9 +104,9 @@ function createRow(data) {
           <p style="margin-left: 15px;">${data['long']['index_price'].toFixed(4)}</p>
       </td>
       <td>
-          <p>${data['long']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${time[data['long']['exchange']]}h</small> </p>
+          <p>${data['long']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${data['long']['interval']}h</small> </p>
       </td>
-      <td class="coin-name" rowspan="2">${(((data['long']['rate'] * (24 / time[data['long']['exchange']]) ) - (data['short']['rate'] * (24 / time[data['short']['exchange']]) )) * 365).toFixed(4)}%</td>
+      <td class="coin-name" rowspan="2">${(((data['long']['rate'] * (24 / data['long']['interval']) ) - (data['short']['rate'] * (24 / data['short']['interval']) )) * 365).toFixed(4)}%</td>
       <td class="coin-name" rowspan="2"><span class="badge green">${((data['long']['rate'] - data['short']['rate'])*100).toFixed(4)}%</span></td>
       <td class="coin-name" rowspan="2"><span class="badge green">${data['short']['index_price'] && data['long']['index_price'] ? ((data['short']['index_price']-data['long']['index_price'])*2/(data['long']['index_price']+data['short']['index_price'])*100).toFixed(4) : -1}%</span></td>
   </tr>
@@ -122,7 +118,7 @@ function createRow(data) {
           <p style="margin-left: 15px;">${data['short']['index_price'].toFixed(4)}</p>
       </td>
       <td style="border-right: 1px solid var(--border);">
-          <p>${data['short']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${time[data['short']['exchange']]}h</small> </p>
+          <p>${data['short']['rate'].toFixed(4)}% <small style="margin-left: 5px ;"> ${data['short']['interval']}h</small> </p>
       </td>
   </tr>
   `

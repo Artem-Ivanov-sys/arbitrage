@@ -96,6 +96,7 @@ class Funding:
     rate_frac: float # дробова, не відсотки
     index_price: float
     reset_time: int
+    interval: int
 
 # ───────────────────────────── FETCHERS ──────────────────────────────────────
 async def fetch_backpack(session: aiohttp.ClientSession, base: str) -> Funding:
@@ -108,7 +109,7 @@ async def fetch_backpack(session: aiohttp.ClientSession, base: str) -> Funding:
     rate_frac = float(last["fundingRate"])  # вже дробова
     index_price = float(last["indexPrice"])
     reset_time = float(last["nextFundingTimestamp"])
-    return Funding("backpack", base, rate_frac, index_price, reset_time)
+    return Funding("backpack", base, rate_frac, index_price, reset_time, 8)
 
 async def fetch_aevo(session: aiohttp.ClientSession, bases: list) -> Funding:
     url = "https://api.aevo.xyz/coingecko-statistics"
@@ -120,7 +121,7 @@ async def fetch_aevo(session: aiohttp.ClientSession, bases: list) -> Funding:
             rate_frac = float(c["funding_rate"])
             index_price = float(c['index_price'])
             reset_time = float(c['next_funding_rate_timestamp'])
-            out.append(Funding("aevo", c["base_currency"], rate_frac, index_price, reset_time))
+            out.append(Funding("aevo", c["base_currency"], rate_frac, index_price, reset_time, 1))
     return out
 
 async def fetch_kiloex(session: aiohttp.ClientSession, bases: list) -> Funding:
@@ -137,18 +138,55 @@ async def fetch_kiloex(session: aiohttp.ClientSession, bases: list) -> Funding:
             rate_frac = raw / 100.0
             index_price = float(c['index_price'])
             reset_time = float(c['end_timestamp'])
-            out.append(Funding("kiloex", c.get("base_currency"), rate_frac, index_price, reset_time))
+            out.append(Funding("kiloex", c.get("base_currency"), rate_frac, index_price, reset_time, 1))
     return out
 
-async def fetch_paradex(session: aiohttp.ClientSession, base: str) -> Funding:
-    url = f"https://api.prod.paradex.trade/v1/markets/summary?market={base}-USD-PERP"
+async def fetch_paradex(session: aiohttp.ClientSession, bases: list) -> Funding:
+    # url = f"https://api.prod.paradex.trade/v1/markets/summary?market={base}-USD-PERP"
+    url = f"https://api.prod.paradex.trade/v1/markets/summary?market=ALL"
+    url2 = f"https://api.prod.paradex.trade/v1/markets"
     async with session.get(url, timeout=10) as r:
         res = await r.json()
+    # j = orjson.loads(res)
+    out = []
+    async with session.get(url2, timeout=10) as r:
+        res2 = await r.json()
+    perps = filter(lambda x: x["asset_kind"] == "PERP", res2["results"])
+    funding_period_hours = {coin: hours for coin, hours in map(lambda x: (x["base_currency"], x["funding_period_hours"]), perps)}
+    # logger.info(funding_period_hours)
+    for c in res.get("results", []):
+        if c.get("symbol").split("-")[0] in bases and c.get("symbol").endswith("PERP"):
+            raw = float(c["funding_rate"])
+            rate_frac = raw / 100.0 * (8 / int(funding_period_hours[c.get("symbol").split("-")[0]]))
+            index_price = float(c["mark_price"])
+            reset_time = float(c["created_at"]) # !!!!!!!!!!!!!!!!!!!!! wrong
+            # logger.info(f"{rate_frac}, {index_price}, {reset_time}, {c.get("symbol").split("-")[0]}")
+            out.append(Funding("paradex", c.get("symbol").split("-")[0], rate_frac, index_price, reset_time, int(funding_period_hours[c.get("symbol").split("-")[0]])))
     rate_frac = float(res['results'][0]['funding_rate'])
     index_price = float(res['results'][0]['mark_price'])
-    return Funding("paradex", base, rate_frac, index_price, -1)
+    return out
 
-FETCHERS = [{"backpack": fetch_backpack, "paradex": fetch_paradex}, {"aevo": fetch_aevo, "kiloex": fetch_kiloex}]
+async def fetch_hyperliquid(session: aiohttp.ClientSession, bases: list) -> Funding:
+    url = "https://api.hyperliquid.xyz/info"
+    headers = {"Content-Type": "application/json"}
+    payload_fund = {"type": "predictedFundings"}
+    payload_price = {"type": "allMids"}
+    async with session.post(url, json=payload_fund, headers=headers, timeout=10) as r:
+        fund = await r.json()
+    async with session.post(url, json=payload_price, headers=headers, timeout=10) as r:
+        price = await r.json()
+    out = []
+    for c in fund:
+        if c[0] in bases:
+            raw = float(c[1][1][1]["fundingRate"])
+            rate_frac = raw / 100.0 * (8 / int(c[1][1][1]["fundingIntervalHours"]))
+            index_price = float(price.get(c[0], -1))
+            reset_time = float(c[1][1][1]["nextFundingTime"])
+            out.append(Funding("hyperliquid", c[0], rate_frac, index_price, reset_time, int(c[1][1][1]["fundingIntervalHours"])))
+    return out
+
+
+FETCHERS = [{"backpack": fetch_backpack}, {"aevo": fetch_aevo, "kiloex": fetch_kiloex, "paradex": fetch_paradex, "hyperliquid": fetch_hyperliquid}]
 
 # ───────────────────────────── CORE LOGIC ────────────────────────────────────
 async def collect_all(session):
@@ -207,13 +245,15 @@ async def main():
                     funding.exchange: {
                         "rate": funding.rate_frac*100,
                         "index_price": funding.index_price,
-                        "reset_time": funding.reset_time
+                        "reset_time": funding.reset_time,
+                        "interval": funding.interval
                     }
                 }
                 else: dict_data[funding.symbol][funding.exchange] = {
                         "rate": funding.rate_frac*100,
                         "index_price": funding.index_price,
-                        "reset_time": funding.reset_time
+                        "reset_time": funding.reset_time,
+                        "interval": funding.interval
                     }
             # for sym, diff_pct, long, short in calc_spreads(rates):
             #     logger.success(
