@@ -179,7 +179,7 @@ async def fetch_hyperliquid(session: aiohttp.ClientSession, bases: list) -> Fund
     for c in fund:
         if c[0] in bases:
             raw = float(c[1][1][1]["fundingRate"])
-            rate_frac = raw / 100.0 * (8 / int(c[1][1][1]["fundingIntervalHours"]))
+            rate_frac = raw / 100.0
             index_price = float(price.get(c[0], -1))
             reset_time = float(c[1][1][1]["nextFundingTime"])
             out.append(Funding("hyperliquid", c[0], rate_frac, index_price, reset_time, int(c[1][1][1]["fundingIntervalHours"])))
