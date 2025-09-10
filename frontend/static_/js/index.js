@@ -6,12 +6,12 @@ let last_time_reload = 0
 let next_time_reload = 0
 let data = {}
 let sort_ = "funding"
-let type_ = (new URLSearchParams(window.location.search).get("type_")) || "dex-dex"
-console.log(type_)
+let type = (new URLSearchParams(window.location.search).get("type")) || "dex-dex"
+console.log(type)
 const CEX = ["bitget", "binance", "gate"]
 const DEX = ["backpack", "kiloex", "aevo", "paradex", "hyperliquid"]
-const excluded = type_ === "dex-dex" ? DEX.reduce((o, key) => ({...o, [key]:false}), {})
-  : type_ === "cex-cex" ? CEX.reduce((o, key) => ({...o, [key]:false}), {})
+const excluded = type === "dex-dex" ? DEX.reduce((o, key) => ({...o, [key]:false}), {})
+  : type === "cex-cex" ? CEX.reduce((o, key) => ({...o, [key]:false}), {})
   : DEX.concat(CEX).reduce((o, key) => ({...o, [key]:false}), {})
 
 function sorted_data() {
@@ -45,7 +45,7 @@ function show_data() {
 
 async function loadData() {
   try {
-    data = await getData(type_)
+    data = await getData(type)
     last_time_reload = Math.floor(new Date().getTime() / 1000)
     next_time_reload = last_time_reload + Math.floor(reload_interval / 1000)
     show_data()
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sort_by = document.getElementById("sort-select");
   const user_info = document.getElementById("user-info");
 
-  document.getElementById(type_).classList.toggle("active")
+  document.getElementById(type).classList.toggle("active")
   document.getElementsByClassName("dropdown-list")[0].innerHTML = Object.keys(excluded).map(el => 
     `<li><label><input class="exchangeCheckbox" type="checkbox" value="${el}" checked /> ${el}</label></li>`
   ).join("")
