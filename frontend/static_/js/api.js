@@ -1,7 +1,7 @@
-export async function getData() {
+export async function getData(type) {
     const url = "localhost"
     let return_data = {}
-    await fetch(`http://${url}/api/v1/get`, {
+    await fetch(`http://${url}/api/v1/get?type=${type}`, {
         credentials: "include",
         method: "GET",
         mode: "cors",
@@ -12,7 +12,7 @@ export async function getData() {
     })
         .then(response => {
             if (!response.ok) {
-                console.log(response)
+                console.log(response.text())
                 throw new Error(response)
             }
             return response.json()

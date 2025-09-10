@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from .models import MainFundingModel
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
 from json import loads
 from random import choice
 from string import ascii_letters, digits
@@ -138,6 +138,15 @@ def getFundingsView(request):
         return response
     
     data = MainFundingModel.objects.all().order_by('-time').first()
+    match request.GET.get("type"):
+        case "dex-dex":
+            type_ = "dex"
+        case "dex-cex":
+            type_ = "any"
+        case "cex-cex":
+            type_ = "cex"
+        case _:
+            return HttpResponseBadRequest("Bad type")
     return_data = {
         'time': data.time,
         'coins': [
@@ -164,7 +173,7 @@ def getFundingsView(request):
             max_ = ['', -100000]
             min_ = ['', 100000]
             for i in keys:
-                if data['fundings'][coin][i]['index_price'] == 0:
+                if data['fundings'][coin][i]['index_price'] == 0 or (data['fundings'][coin][i]["type"] != type_ and type_ != "any"):
                     continue
                 if data['fundings'][coin][i]['rate'] > max_[1]:
                     max_ = [i, data['fundings'][coin][i]['rate'], data['fundings'][coin][i]['index_price'], data['fundings'][coin][i]['reset_time'], data['fundings'][coin][i]['interval']]

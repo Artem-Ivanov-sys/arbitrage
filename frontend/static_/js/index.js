@@ -6,13 +6,13 @@ let last_time_reload = 0
 let next_time_reload = 0
 let data = {}
 let sort_ = "funding"
-const excluded = {
-    backpack: false,
-    kiloex: false,
-    aevo: false,
-    paradex: false,
-    hyperliquid: false
-  }
+let type = (new URLSearchParams(window.location.search).get("type")) || "dex-dex"
+console.log(type)
+const CEX = ["bitget", "binance", "gate"]
+const DEX = ["backpack", "kiloex", "aevo", "paradex", "hyperliquid"]
+const excluded = type === "dex-dex" ? DEX.reduce((o, key) => ({...o, [key]:false}), {})
+  : type === "cex-cex" ? CEX.reduce((o, key) => ({...o, [key]:false}), {})
+  : DEX.concat(CEX).reduce((o, key) => ({...o, [key]:false}), {})
 
 function sorted_data() {
   if (sort_ === "funding") {
@@ -45,7 +45,7 @@ function show_data() {
 
 async function loadData() {
   try {
-    data = await getData()
+    data = await getData(type)
     last_time_reload = Math.floor(new Date().getTime() / 1000)
     next_time_reload = last_time_reload + Math.floor(reload_interval / 1000)
     show_data()
@@ -93,7 +93,10 @@ function createRow(data) {
     kiloex: "https://app.kiloex.io/trade?token=#USD",
     aevo: "https://app.aevo.xyz/perpetual/#",
     paradex: "https://app.paradex.trade/trade/#-USD-PERP",
-    hyperliquid: "https://app.hyperliquid.xyz/trade/#"
+    hyperliquid: "https://app.hyperliquid.xyz/trade/#",
+    bitget: "https://www.bitget.com/uk/futures/usdt/#USDT",
+    binance: "https://www.binance.com/uk-UA/futures/#USDT",
+    gate: "https://www.gate.com/uk/futures/USDT/#_USDT"
   }
   return `
   <tr>
@@ -131,6 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const apply = document.getElementById('exchangeApply');
   const sort_by = document.getElementById("sort-select");
   const user_info = document.getElementById("user-info");
+
+  document.getElementById(type).classList.toggle("active")
+  document.getElementsByClassName("dropdown-list")[0].innerHTML = Object.keys(excluded).map(el => 
+    `<li><label><input class="exchangeCheckbox" type="checkbox" value="${el}" checked /> ${el}</label></li>`
+  ).join("")
 
   whoami().then(data => {
     if (data.first_name) {
