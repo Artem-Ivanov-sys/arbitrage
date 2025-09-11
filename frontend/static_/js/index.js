@@ -8,7 +8,7 @@ let data = {}
 let sort_ = "funding"
 let type = (new URLSearchParams(window.location.search).get("type")) || "dex-dex"
 console.log(type)
-const CEX = ["bitget", "binance", "gate"]
+const CEX = ["bitget", "binance", "gate", "kucoin", "okx"]
 const DEX = ["backpack", "kiloex", "aevo", "paradex", "hyperliquid"]
 const excluded = type === "dex-dex" ? DEX.reduce((o, key) => ({...o, [key]:false}), {})
   : type === "cex-cex" ? CEX.reduce((o, key) => ({...o, [key]:false}), {})
@@ -96,7 +96,9 @@ function createRow(data) {
     hyperliquid: "https://app.hyperliquid.xyz/trade/#",
     bitget: "https://www.bitget.com/uk/futures/usdt/#USDT",
     binance: "https://www.binance.com/uk-UA/futures/#USDT",
-    gate: "https://www.gate.com/uk/futures/USDT/#_USDT"
+    gate: "https://www.gate.com/uk/futures/USDT/#_USDT",
+    kucoin: "https://www.kucoin.com/uk/trade/futures/#USDTM",
+    okx: "https://www.okx.com/ua/trade-swap/#-usdt-swap"
   }
   return `
   <tr>

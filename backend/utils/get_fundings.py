@@ -123,8 +123,67 @@ async def fetch_binance(session: aiohttp.ClientSession, bases: List[str]) -> Fun
             ))
     return out
 
+async def fetch_kucion(session: aiohttp.ClientSession, bases: list[str]) -> list[Funding]:
+    url1 = "https://api-futures.kucoin.com/api/v1/contracts/active"
+    url2 = "https://api-futures.kucoin.com/api/v1/allTickers"
+
+    async with session.get(url1, timeout=10) as r:
+        contracts = await r.json()
+    async with session.get(url2, timeout=10) as r:
+        tickers = await r.json()
+    
+    out = []
+    data = dict()
+    for c in tickers["data"]:
+        symb = c["symbol"][:-5]
+        if symb in bases:
+            data[symb] = {"index_price": float(c["price"])}
+            data[symb]["exchange"] = "kucoin"
+            data[symb]["symbol"] = symb
+    
+    for c in contracts["data"]:
+        symb = c["baseCurrency"]
+        if symb in bases and symb in data.keys():
+            data[symb]["rate_frac"] = float(c["fundingFeeRate"])
+            data[symb]["reset_time"] = int(c.get("nextFundingRateDateTime") or c.get("nextFundingRateTime"))
+            data[symb]["interval"] = int(c.get("fundingRateGranularity", 3600000)//1000//3600)
+            data[symb]["type"] = "cex"
+            out.append(Funding(**data[symb]))
+    return out
+
 async def fetch_bingx(session: aiohttp.ClientSession, bases: list[str]) -> list[Funding]:
     url = "https://open-api.bingx.com/openApi/swap/v2/quote/contracts" # /klines
+
+async def fetch_okx(session: aiohttp.ClientSession, bases: list[str]) -> list[Funding]:
+    # url1 = "https://www.okx.com/api/v5/public/instruments?instType=SWAP"
+    url2 = "https://www.okx.com/api/v5/public/funding-rate?instType=SWAP&instId=ANY"
+    url3 = "https://www.okx.com/api/v5/market/tickers?instType=SWAP"
+
+    # async with session.get(url1, timeout=10) as r:
+    #     instruments = await r.json()
+    async with session.get(url2, timeout=10) as r:
+        fundings = await r.json()
+    async with session.get(url3, timeout=10) as r:
+        tickers = await r.json()
+    
+    out = []
+    data = dict()
+    for c in fundings["data"]:
+        symb = c["instId"].split("-")[0]
+        if symb in bases:
+            data[symb] = {"rate_frac": float(c["fundingRate"])}
+            data[symb]["reset_time"] = int(c["nextFundingTime"])
+            data[symb]["interval"] = (int(c["nextFundingTime"])-int(c["fundingTime"]))//1000//3600 or 1
+            data[symb]["exchange"] = "okx"
+            data[symb]["symbol"] = symb
+    
+    for c in tickers["data"]:
+        symb = c["instId"].split("-")[0]
+        if symb in bases and symb in data.keys():
+            data[symb]["index_price"] = float(c["last"])
+            data[symb]["type"] = "cex"
+            out.append(Funding(**data[symb]))
+    return out
 
 async def fetch_gate(session: aiohttp.ClientSession, bases: list[str]) -> list[Funding]:
     url = "https://api.gateio.ws/api/v4/futures/usdt/contracts"
@@ -257,7 +316,7 @@ async def fetch_hyperliquid(session: aiohttp.ClientSession, bases: list) -> Fund
     return out
 
 
-FETCHERS = [{"backpack": fetch_backpack}, {"aevo": fetch_aevo, "kiloex": fetch_kiloex, "paradex": fetch_paradex, "hyperliquid": fetch_hyperliquid, "binance": fetch_binance, "bitget": fetch_bitget, "gate": fetch_gate}]
+FETCHERS = [{"backpack": fetch_backpack}, {"aevo": fetch_aevo, "kiloex": fetch_kiloex, "paradex": fetch_paradex, "hyperliquid": fetch_hyperliquid, "binance": fetch_binance, "bitget": fetch_bitget, "gate": fetch_gate, "kucoin": fetch_kucion, "okx": fetch_okx}]
 
 # ───────────────────────────── CORE LOGIC ────────────────────────────────────
 async def collect_all(session):
