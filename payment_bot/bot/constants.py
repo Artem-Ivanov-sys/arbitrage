@@ -41,7 +41,7 @@ SEND_FILE_ON_SUCCESS = os.getenv("SEND_FILE_ON_SUCCESS", "false").lower() == "tr
 # ----------------------------- ТАРИФЫ/ПЛАНЫ ---------------------------------
 # Как просили: 1м = $30, 3м = $50, 6м = $130.
 TARIFFS = [
-    {"code": "1m", "title": "1 месяц",  "amount": "0"},
+    {"code": "1m", "title": "1 месяц",  "amount": "15"},
     {"code": "3m", "title": "3 месяца", "amount": "30"},
     {"code": "12m", "title": "12 месяцев","amount": "90"},
 ]
